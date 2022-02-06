@@ -2,11 +2,14 @@
   <div>
     <h2>タスクリスト</h2>
     <ul>
-      <li v-for="task in tasks" :key="task.id">
+      <li v-for="task in allTasks" :key="task.content">
         <input type="checkbox" v-model="task.completed" />
         <span v-text="task.content"></span>
       </li>
     </ul>
+    <label for="addTask">タスク追加</label>
+    <input id="addTask" type="text" v-model="newTask" />
+    <button @click="addTask">追加</button>
   </div>
 </template>
 
@@ -15,12 +18,24 @@ export default {
   data() {
     return {
       tasks: [
-        { id: 0, content: "HTML", completed: false },
-        { id: 1, content: "CSS", completed: false },
-        { id: 2, content: "JavaScript", completed: false },
-        { id: 3, content: "Vue.js", completed: false },
+        { content: "HTML", completed: false },
+        { content: "CSS", completed: false },
+        { content: "JavaScript", completed: false },
+        { content: "Vue.js", completed: false },
       ],
+      newTask: "",
     };
+  },
+  methods: {
+    addTask() {
+      this.tasks.push({ content: this.newTask, completed: false });
+      this.newTask = "";
+    },
+  },
+  computed: {
+    allTasks() {
+      return this.tasks;
+    },
   },
 };
 </script>
