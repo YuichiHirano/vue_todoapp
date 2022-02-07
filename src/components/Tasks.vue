@@ -1,44 +1,73 @@
 <template>
-  <div>
-    <h2>タスクリスト</h2>
-    <ul>
-      <li v-for="(task, index) in allTasks" :key="task.content">
-        <span v-text="task.content"></span>
-        <input
-          type="checkbox"
-          v-model="task.completed"
-          @change="completeTask(index)"
-        />
-      </li>
-    </ul>
+  <v-app>
+    <v-toolbar color="indigo" dark max-height="64px">
+      <v-toolbar-title>タスクリスト</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn icon>
+        <v-icon>mdi-magnify</v-icon>
+      </v-btn>
+    </v-toolbar>
+    <v-card
+      v-for="(task, index) in allTasks"
+      :key="task.content"
+      outlined
+      elevation="1"
+      max-width="344"
+    >
+      <v-card-text>
+        <p class="text-h4 text--primary">
+          {{ task.content }}
+        </p>
+        <div class="text--primary">
+          {{ task.detail }}
+        </div>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn color="blue darken-1" text @click="finishedTask(index)">
+          FINISHED
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+
+    <v-card elevation="1" max-width="344">
+      <v-card-text>
+        <v-text-field v-model="task.content" label="title"></v-text-field>
+        <v-text-field v-model="task.detail" label="detail"></v-text-field>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn color="primary" @click="addTask">ADD</v-btn>
+      </v-card-actions>
+    </v-card>
 
     <div>
-      <label for="changeShowCompletedTask">完了済みタスクを表示</label>
+      <label for="changeShowfinishedTask">SHOW FINISHED</label>
       <input
         type="checkbox"
-        id="changeShowCompletedTask"
-        @change="changeShowCompletedTask"
+        id="changeShowfinishedTask"
+        @change="changeShowfinishedTask"
       />
     </div>
 
-    <template v-if="getShowCompletedTask">
-      <h2>完了済みタスクリスト</h2>
-      <ul>
-        <li v-for="(task, index) in allCompletedTasks" :key="task.content">
-          <span v-text="task.content"></span>
-          <input
-            type="checkbox"
-            v-model="task.completed"
-            @change="redoTask(index)"
-          />
-        </li>
-      </ul>
+    <template v-if="getShowfinishedTask">
+      <v-card
+        v-for="task in allfinishedTasks"
+        :key="task.content"
+        outlined
+        disabled
+        elevation="2"
+        max-width="344"
+      >
+        <v-card-text>
+          <p class="text-h4 text--primary">
+            {{ task.content }}
+          </p>
+          <div class="text--primary">
+            {{ task.detail }}
+          </div>
+        </v-card-text>
+      </v-card>
     </template>
-
-    <label for="addTask">タスク追加</label>
-    <input id="addTask" type="text" v-model="newTask" />
-    <button @click="addTask">追加</button>
-  </div>
+  </v-app>
 </template>
 
 <script>
@@ -46,46 +75,56 @@ export default {
   data() {
     return {
       tasks: [
-        { content: "HTML", completed: false },
-        { content: "CSS", completed: false },
-        { content: "JavaScript", completed: false },
-        { content: "Vue.js", completed: false },
+        { content: "HTML", detail: "書籍Aを読む", finished: false },
+        { content: "CSS", detail: "web講座Bを受講", finished: false },
+        { content: "JavaScript", detail: "", finished: false },
+        { content: "Vue.js", detail: "研修Cを受講", finished: false },
       ],
-      completedTasks: [{ content: "jQuery", completed: true }],
-      newTask: "",
-      showCompletedTask: false,
+      finishedTasks: [{ content: "jQuery", detail: "", finished: true }],
+      task: {
+        content: "",
+        detail: "",
+        finished: false,
+      },
+      showfinishedTask: false,
     };
   },
   methods: {
     addTask() {
-      this.tasks.push({ content: this.newTask, completed: false });
-      this.newTask = "";
+      this.tasks.push(this.task);
+      this.task = {
+        content: "",
+        detail: "",
+        finished: false,
+      };
     },
-    completeTask(index) {
-      if (confirm("Are you really completed?")) {
-        this.tasks.splice(index, 1);
-        this.completedTasks.push(this.tasks[index]);
+    finishedTask(index) {
+      if (confirm("Are you really finished?")) {
+        const task = this.tasks.splice(index, 1)[0];
+        task.finished = true;
+        this.finishedTasks.push(task);
       }
     },
     redoTask(index) {
       if (confirm("Are you really redo?")) {
-        this.completedTasks.splice(index, 1);
-        this.tasks.push(this.completedTasks[index]);
+        const task = this.finishedTasks.splice(index, 1)[0];
+        task.finished = false;
+        this.tasks.push(task);
       }
     },
-    changeShowCompletedTask() {
-      this.showCompletedTask = !this.showCompletedTask;
+    changeShowfinishedTask() {
+      this.showfinishedTask = !this.showfinishedTask;
     },
   },
   computed: {
     allTasks() {
       return this.tasks;
     },
-    allCompletedTasks() {
-      return this.completedTasks;
+    allfinishedTasks() {
+      return this.finishedTasks;
     },
-    getShowCompletedTask() {
-      return this.showCompletedTask;
+    getShowfinishedTask() {
+      return this.showfinishedTask;
     },
   },
 };
